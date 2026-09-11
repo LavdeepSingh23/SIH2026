@@ -15,7 +15,7 @@ export function AppShell() {
   const pageTitle = titles[pathname] ?? "Attribution Console";
 
   return (
-    <div className="flex min-h-screen bg-[#000000] text-text selection:bg-teal selection:text-black">
+    <div className="flex min-h-screen bg-[#000000] text-text dashboard-shell selection:bg-teal selection:text-black">
       <Sidebar />
       <div className="flex-1 min-w-0 flex flex-col bg-[#000000] relative isolate">
         {/* Subtle Background Radial Tactical Glow */}
