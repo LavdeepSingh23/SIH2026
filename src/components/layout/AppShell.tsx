@@ -19,7 +19,7 @@ export function AppShell() {
       <Sidebar />
       <div className="flex-1 min-w-0 flex flex-col bg-[#000000] relative isolate">
         <Topbar pageTitle={pageTitle} />
-        <main className="px-6 pt-5 pb-7 flex flex-col gap-4 flex-1">
+        <main className="px-6 pt-5 pb-7 flex flex-col gap-4 flex-1 bg-[#000000]">
           <Outlet />
         </main>
       </div>

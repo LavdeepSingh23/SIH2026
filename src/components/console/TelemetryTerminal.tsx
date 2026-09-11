@@ -124,7 +124,7 @@ export function TelemetryTerminal() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#03070f]/90 font-mono text-[11px] overflow-hidden">
+    <div className="flex flex-col h-full bg-[#000000] font-mono text-[11px] overflow-hidden">
       {/* Terminal Bar Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.06] bg-white/[0.02]">
         <div className="flex items-center gap-2">

@@ -19,7 +19,7 @@ export function Panel({
 }: PanelProps) {
   return (
     <div
-      className={`relative isolate overflow-hidden rounded-xl border border-white/[0.08] bg-[#05080e]/85 backdrop-blur-xl flex flex-col shadow-[0_4px_24px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.08)] hover:border-white/[0.14] transition-colors ${className}`}
+      className={`relative isolate overflow-hidden rounded-xl border border-white/[0.08] bg-[#000000] flex flex-col shadow-[0_4px_24px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.08)] hover:border-white/[0.14] transition-colors ${className}`}
     >
       {/* Hairline Specular Reflection */}
       <div className="pointer-events-none absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />

@@ -29,7 +29,7 @@ export function LiquidGlassPanel({
       {/* 1. Frosted Liquid Glass Specular & Inset Bevel Lighting */}
       <div
         className={cn(
-          "absolute inset-0 -z-10 transition-all duration-300 bg-[#070b12]/60 backdrop-blur-2xl border",
+          "absolute inset-0 -z-10 transition-all duration-300 bg-[#000000]/80 backdrop-blur-2xl border",
           roundedClass,
           glowShadow
         )}

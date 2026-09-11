@@ -424,7 +424,7 @@ export default function Incidents() {
                   </p>
 
                   {/* Key Telemetry Rows */}
-                  <div className="space-y-2 bg-[#03060a]/90 p-3.5 rounded-xl border border-white/10 mb-4 text-[11px] font-mono">
+                  <div className="space-y-2 bg-[#000000] p-3.5 rounded-xl border border-white/10 mb-4 text-[11px] font-mono">
                     <div className="flex justify-between items-center">
                       <span className="text-text-faint flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-amber" />

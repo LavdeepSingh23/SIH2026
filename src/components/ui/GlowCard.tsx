@@ -50,7 +50,7 @@ export function GlowCard({
         setMousePos(null);
       }}
       className={cn(
-        "relative isolate overflow-hidden rounded-xl border border-white/[0.08] bg-[#05080e]/85 backdrop-blur-xl transition-all duration-300",
+        "relative isolate overflow-hidden rounded-xl border border-white/[0.08] bg-[#000000] transition-all duration-300",
         "shadow-[0_4px_24px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]",
         borderHoverClass,
         className

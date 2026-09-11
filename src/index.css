@@ -5,8 +5,8 @@
   --font-dashboard: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   /* surfaces */
   --color-bg: #000000;
-  --color-panel: #070b12;
-  --color-panel-soft: #0c121e;
+  --color-panel: #000000;
+  --color-panel-soft: #050505;
 
   /* lines */
   --color-border: rgba(255, 255, 255, 0.1);

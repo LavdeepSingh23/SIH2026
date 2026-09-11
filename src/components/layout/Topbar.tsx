@@ -19,7 +19,7 @@ export function Topbar({ pageTitle }: { pageTitle: string }) {
   }, []);
 
   return (
-    <header className="relative isolate flex items-center justify-between px-6 py-3.5 border-b border-white/[0.08] bg-[#000000]/95 backdrop-blur-xl z-30">
+    <header className="relative isolate flex items-center justify-between px-6 py-3.5 border-b border-white/[0.08] bg-[#000000] z-30">
       {/* Hairline Specular Reflection */}
       <div className="pointer-events-none absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-teal/30 to-transparent" />
 
