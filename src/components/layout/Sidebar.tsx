@@ -1,5 +1,6 @@
 import { NavLink, Link } from "react-router-dom";
 import { CircleDot, Ship, Waves, Bell, Activity, Globe, Menu } from "lucide-react";
+import { MarisLogoMark } from "../ui/MarisLogoMark";
 
 const navItems = [
   { to: "/console", label: "Incidents", icon: CircleDot, end: true },
@@ -13,8 +14,8 @@ export function Sidebar() {
   return (
     <aside className="w-[210px] shrink-0 bg-panel-soft border-r border-border-soft flex flex-col p-3.5">
       <Link to="/" className="flex items-center gap-2.5 px-1.5 pb-5 hover:opacity-90 transition-opacity" title="Back to Public Portal">
-        <div className="w-8 h-8 rounded-lg bg-teal-wash border border-teal-dim text-teal flex items-center justify-center font-extrabold text-[15px]">
-          M
+        <div className="w-8 h-8 rounded-lg bg-teal-wash border border-teal-dim text-teal flex items-center justify-center">
+          <MarisLogoMark className="w-5 h-5 text-teal" />
         </div>
         <div>
           <b className="block text-[14.5px] font-bold tracking-wide">MARIS</b>
