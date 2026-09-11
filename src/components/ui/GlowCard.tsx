@@ -5,14 +5,12 @@ interface GlowCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   glowColor?: "cyan" | "red" | "subtle";
-  showReticles?: boolean;
 }
 
 export function GlowCard({
   children,
   className,
   glowColor = "cyan",
-  showReticles = true,
   ...props
 }: GlowCardProps) {
   const cardRef = React.useRef<HTMLDivElement>(null);
@@ -71,24 +69,6 @@ export function GlowCard({
 
       {/* 2. Top Hairline Specular Reflection */}
       <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-      {/* 3. Corner Tactical Reticles (+) */}
-      {showReticles && (
-        <>
-          <span className="pointer-events-none absolute top-1 left-1 font-mono text-[9px] text-teal/30 select-none leading-none">
-            +
-          </span>
-          <span className="pointer-events-none absolute top-1 right-1 font-mono text-[9px] text-teal/30 select-none leading-none">
-            +
-          </span>
-          <span className="pointer-events-none absolute bottom-1 left-1 font-mono text-[9px] text-teal/30 select-none leading-none">
-            +
-          </span>
-          <span className="pointer-events-none absolute bottom-1 right-1 font-mono text-[9px] text-teal/30 select-none leading-none">
-            +
-          </span>
-        </>
-      )}
 
       {/* Content */}
       <div className="relative z-10 w-full h-full">{children}</div>

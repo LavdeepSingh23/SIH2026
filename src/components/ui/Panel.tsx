@@ -24,20 +24,6 @@ export function Panel({
       {/* Hairline Specular Reflection */}
       <div className="pointer-events-none absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-      {/* Corner Tactical Reticles */}
-      <span className="pointer-events-none absolute top-1 left-1 font-mono text-[9px] text-teal/25 select-none leading-none">
-        +
-      </span>
-      <span className="pointer-events-none absolute top-1 right-1 font-mono text-[9px] text-teal/25 select-none leading-none">
-        +
-      </span>
-      <span className="pointer-events-none absolute bottom-1 left-1 font-mono text-[9px] text-teal/25 select-none leading-none">
-        +
-      </span>
-      <span className="pointer-events-none absolute bottom-1 right-1 font-mono text-[9px] text-teal/25 select-none leading-none">
-        +
-      </span>
-
       {title && (
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-white/[0.01]">
           <div className="flex items-center gap-2 text-[13.5px] font-bold tracking-tight">
