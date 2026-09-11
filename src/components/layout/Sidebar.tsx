@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { CircleDot, Ship, Waves, Bell, Activity, Globe } from "lucide-react";
+import { CircleDot, Ship, Waves, Bell, Activity, Globe, ChevronLeft, ChevronRight } from "lucide-react";
 import { MarisLogoMark } from "../ui/MarisLogoMark";
 
 const navItems = [
@@ -11,27 +12,39 @@ const navItems = [
 ];
 
 export function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <aside className="w-[220px] shrink-0 bg-[#02050b] border-r border-white/[0.08] flex flex-col p-3.5 select-none relative isolate">
+    <aside
+      className={`shrink-0 bg-[#02050b] border-r border-white/[0.08] flex flex-col p-3 select-none relative isolate transition-all duration-300 ${
+        collapsed ? "w-[64px]" : "w-[210px]"
+      }`}
+    >
       {/* Hairline Right Border Specular */}
       <div className="pointer-events-none absolute inset-y-0 right-0 w-[1px] bg-gradient-to-b from-teal/30 via-white/10 to-transparent" />
 
       {/* Brand Header */}
-      <Link
-        to="/"
-        className="flex items-center gap-2.5 px-2 py-3 mb-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-teal/30 transition-all group"
-        title="Return to 3D Earth Portal"
-      >
-        <div className="w-8 h-8 rounded-lg bg-teal-wash border border-teal/40 text-teal flex items-center justify-center group-hover:shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all">
-          <MarisLogoMark className="w-5 h-5 text-teal" />
-        </div>
-        <div>
-          <b className="block text-[14px] font-bold tracking-wider text-white">MARIS</b>
-          <span className="block text-[8.5px] font-mono tracking-widest text-teal font-semibold">
-            DEFENSE COMMAND
-          </span>
-        </div>
-      </Link>
+      <div className="flex items-center justify-between mb-3">
+        <Link
+          to="/"
+          className={`flex items-center gap-2.5 p-1.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-teal/30 transition-all group overflow-hidden ${
+            collapsed ? "justify-center w-full" : ""
+          }`}
+          title="Return to 3D Earth Portal"
+        >
+          <div className="w-8 h-8 shrink-0 rounded-lg bg-teal-wash border border-teal/40 text-teal flex items-center justify-center group-hover:shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all">
+            <MarisLogoMark className="w-5 h-5 text-teal" />
+          </div>
+          {!collapsed && (
+            <div className="overflow-hidden">
+              <b className="block text-[13.5px] font-bold tracking-wider text-white truncate">MARIS</b>
+              <span className="block text-[8px] font-mono tracking-widest text-teal font-semibold truncate">
+                COMMAND
+              </span>
+            </div>
+          )}
+        </Link>
+      </div>
 
       {/* Navigation items */}
       <nav className="flex flex-col gap-1 flex-1">
@@ -40,8 +53,11 @@ export function Sidebar() {
             key={to}
             to={to}
             end={end}
+            title={collapsed ? label : undefined}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium border-l-2 transition-all ${
+              `flex items-center gap-2.5 p-2.5 rounded-lg text-[13px] font-medium border-l-2 transition-all ${
+                collapsed ? "justify-center" : ""
+              } ${
                 isActive
                   ? "text-teal bg-teal-wash/60 border-l-teal shadow-[inset_0_0_16px_rgba(0,240,255,0.06)] font-semibold"
                   : "text-text-muted border-l-transparent hover:text-white hover:bg-white/[0.03]"
@@ -49,34 +65,45 @@ export function Sidebar() {
             }
           >
             <Icon className="w-4 h-4 shrink-0 text-teal/70" />
-            <span>{label}</span>
+            {!collapsed && <span className="truncate">{label}</span>}
           </NavLink>
         ))}
 
-        <div className="my-3 border-t border-white/[0.06]" />
+        <div className="my-2 border-t border-white/[0.06]" />
 
         <Link
           to="/"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px] font-mono text-text-faint hover:text-teal hover:bg-teal-wash/30 transition-colors"
+          title={collapsed ? "3D Orbital Earth" : undefined}
+          className={`flex items-center gap-2.5 p-2.5 rounded-lg text-[12px] font-mono text-text-faint hover:text-teal hover:bg-teal-wash/30 transition-colors ${
+            collapsed ? "justify-center" : ""
+          }`}
         >
-          <Globe className="w-3.5 h-3.5 shrink-0 text-teal" />
-          <span>3D Orbital Earth</span>
+          <Globe className="w-4 h-4 shrink-0 text-teal" />
+          {!collapsed && <span className="truncate">3D Orbital Earth</span>}
         </Link>
       </nav>
 
-      {/* Station Status Bottom Footer */}
-      <div className="border-t border-white/[0.06] pt-3 mt-auto flex flex-col gap-1.5 px-1 font-mono text-[10px]">
-        <div className="flex items-center justify-between text-text-faint">
-          <span>STATION</span>
-          <span className="text-teal font-bold">GRID 04-B</span>
-        </div>
-        <div className="flex items-center gap-2 text-text-muted">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-75" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-teal" />
-          </span>
-          <span>OCEANIC-7 ONLINE</span>
-        </div>
+      {/* Collapse Toggle & Station Status */}
+      <div className="border-t border-white/[0.06] pt-2.5 mt-auto flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => setCollapsed(!collapsed)}
+          className="w-full py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.05] hover:border-teal/30 text-text-faint hover:text-teal text-[10px] font-mono flex items-center justify-center gap-1 transition-colors cursor-pointer"
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+          {!collapsed && <span>COLLAPSE DOCK</span>}
+        </button>
+
+        {!collapsed && (
+          <div className="px-1 text-[9.5px] font-mono text-text-faint flex items-center justify-between">
+            <span>DEFENSE NODE</span>
+            <span className="text-teal font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
+              ONLINE
+            </span>
+          </div>
+        )}
       </div>
     </aside>
   );
