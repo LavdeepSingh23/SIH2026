@@ -1,14 +1,32 @@
 import { useState } from "react";
-import { Globe, Layers, Radar, Compass, Download, Clock, Anchor, Activity, FileCheck2, ChevronRight, ChevronLeft, ShieldAlert, Waves } from "lucide-react";
+import {
+  Globe,
+  Layers,
+  Radar,
+  Compass,
+  Download,
+  Clock,
+  Anchor,
+  Activity,
+  FileCheck2,
+  ChevronRight,
+  ChevronLeft,
+  ShieldAlert,
+  Waves,
+  Terminal,
+  Ship,
+  Search,
+} from "lucide-react";
 import { LiquidGlassPanel } from "../components/ui/LiquidGlassPanel";
 import { LiquidButton } from "../components/ui/button";
 import { InteractiveEarth } from "../components/earth/InteractiveEarth";
 import { GoogleEarthMap } from "../components/earth/GoogleEarthMap";
 import { IncidentMap } from "../components/maps/IncidentMap";
 import { TimeScrubber } from "../components/console/TimeScrubber";
+import { TelemetryTerminal } from "../components/console/TelemetryTerminal";
 import { ForensicDossierModal } from "../components/console/ForensicDossierModal";
 import { GLOBAL_INCIDENTS, type IncidentHotspot } from "../components/earth/earthUtils";
-import { incidents } from "../data/mockData";
+import { incidents, vessels } from "../data/mockData";
 import type { Incident, SuspectVessel } from "../types";
 
 export default function Incidents() {
@@ -17,11 +35,12 @@ export default function Incidents() {
   const [activeIncident, setActiveIncident] = useState<Incident>(incidents[0]);
   const [timeOffset, setTimeOffset] = useState<number>(0);
   const [selectedSuspectIndex, setSelectedSuspectIndex] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<"dossier" | "terminal" | "vessels">("dossier");
   const [isDossierOpen, setIsDossierOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Layers for 3D Earth
-  const [showSAR, setShowSAR] = useState(true);
+  // Layer toggles for 3D Globe (satellite is permanently hidden on dashboard globe)
   const [showAIS, setShowAIS] = useState(true);
   const [showDrift, setShowDrift] = useState(true);
 
@@ -107,10 +126,17 @@ export default function Incidents() {
     URL.revokeObjectURL(url);
   };
 
+  const filteredHotspots = GLOBAL_INCIDENTS.filter(
+    (h) =>
+      h.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      h.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      h.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col gap-4 max-w-[1700px] mx-auto w-full">
       {/* ========================================================================= */}
-      {/* 1. TOP FLOATING COMMAND DOCK (21st.dev Liquid Glass Pill) */}
+      {/* 1. TOP FLOATING COMMAND DOCK (21st.dev Liquid Glass) */}
       {/* ========================================================================= */}
       <LiquidGlassPanel variant="card" glow="cyan" className="p-2 sm:p-2.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -119,7 +145,7 @@ export default function Incidents() {
             <span className="text-[10px] font-mono tracking-widest text-text-faint uppercase px-2 hidden sm:inline-block">
               TARGET INCIDENTS:
             </span>
-            {GLOBAL_INCIDENTS.map((hotspot) => {
+            {filteredHotspots.map((hotspot) => {
               const isActive = hotspot.id === activeIncident.id;
               return (
                 <button
@@ -150,44 +176,59 @@ export default function Incidents() {
             })}
           </div>
 
-          {/* Viewport Mode Switcher */}
-          <div className="flex items-center gap-1 p-1 bg-black/60 border border-white/10 rounded-xl">
-            <button
-              type="button"
-              onClick={() => setViewMode("globe")}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                viewMode === "globe"
-                  ? "bg-teal text-[#020a10] font-bold shadow-[0_0_12px_rgba(0,240,255,0.3)]"
-                  : "text-text-muted hover:text-white"
-              }`}
-            >
-              <Globe className="w-3.5 h-3.5" />
-              3D Orbit
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("google")}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                viewMode === "google"
-                  ? "bg-teal text-[#020a10] font-bold shadow-[0_0_12px_rgba(0,240,255,0.3)]"
-                  : "text-text-muted hover:text-white"
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              Google Earth
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("radar")}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                viewMode === "radar"
-                  ? "bg-teal text-[#020a10] font-bold shadow-[0_0_12px_rgba(0,240,255,0.3)]"
-                  : "text-text-muted hover:text-white"
-              }`}
-            >
-              <Radar className="w-3.5 h-3.5" />
-              Radar HUD
-            </button>
+          {/* Quick Search & Viewport Mode Switcher */}
+          <div className="flex items-center gap-2">
+            {/* Quick search input */}
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-black/60 border border-white/10 rounded-xl text-xs font-mono">
+              <Search className="w-3.5 h-3.5 text-text-faint" />
+              <input
+                type="text"
+                placeholder="Search ocean theater..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent text-white placeholder:text-text-faint focus:outline-none w-36 text-[11px]"
+              />
+            </div>
+
+            {/* Viewport Mode Switcher */}
+            <div className="flex items-center gap-1 p-1 bg-black/60 border border-white/10 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setViewMode("globe")}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                  viewMode === "globe"
+                    ? "bg-teal text-[#020a10] font-bold shadow-[0_0_12px_rgba(0,240,255,0.3)]"
+                    : "text-text-muted hover:text-white"
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                3D Orbit
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("google")}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                  viewMode === "google"
+                    ? "bg-teal text-[#020a10] font-bold shadow-[0_0_12px_rgba(0,240,255,0.3)]"
+                    : "text-text-muted hover:text-white"
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                Google Earth
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("radar")}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                  viewMode === "radar"
+                    ? "bg-teal text-[#020a10] font-bold shadow-[0_0_12px_rgba(0,240,255,0.3)]"
+                    : "text-text-muted hover:text-white"
+                }`}
+              >
+                <Radar className="w-3.5 h-3.5" />
+                Radar HUD
+              </button>
+            </div>
           </div>
         </div>
       </LiquidGlassPanel>
@@ -202,7 +243,7 @@ export default function Incidents() {
             <InteractiveEarth
               selectedIncident={selectedHotspot}
               onSelectIncident={handleSelectHotspot}
-              showSARLayer={showSAR}
+              showSARLayer={false} /* SATELLITE REMOVED FROM DASHBOARD GLOBE */
               showAISLayer={showAIS}
               showDriftLayer={showDrift}
             />
@@ -222,7 +263,10 @@ export default function Incidents() {
               timeOffset={timeOffset}
               onSelectSuspect={(s) => {
                 const idx = activeIncident.suspects.findIndex((item) => item.name === s.name);
-                if (idx !== -1) setSelectedSuspectIndex(idx);
+                if (idx !== -1) {
+                  setSelectedSuspectIndex(idx);
+                  setActiveTab("dossier");
+                }
               }}
             />
           )}
@@ -236,7 +280,11 @@ export default function Incidents() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-teal" />
             </span>
             <span className="text-teal font-bold tracking-wider">
-              {viewMode === "globe" ? "3D ORBITAL SURVEILLANCE" : viewMode === "google" ? "GOOGLE EARTH 3D SATELLITE" : "TACTICAL RADAR SCAN"}
+              {viewMode === "globe"
+                ? "3D GLOBAL DEFENSE ORBIT"
+                : viewMode === "google"
+                ? "GOOGLE EARTH SATELLITE"
+                : "TACTICAL RADAR SCAN"}
             </span>
             <span className="text-text-faint">|</span>
             <span className="text-white font-semibold">{activeIncident.region}</span>
@@ -247,21 +295,12 @@ export default function Incidents() {
             <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/75 backdrop-blur-xl border border-white/10 pointer-events-auto">
               <button
                 type="button"
-                onClick={() => setShowSAR(!showSAR)}
-                className={`px-2.5 py-1 text-[11px] font-mono rounded-lg transition-all cursor-pointer ${
-                  showSAR ? "bg-teal-wash text-teal font-bold border border-teal/40" : "text-text-faint hover:text-white"
-                }`}
-              >
-                SAR Orbit
-              </button>
-              <button
-                type="button"
                 onClick={() => setShowAIS(!showAIS)}
                 className={`px-2.5 py-1 text-[11px] font-mono rounded-lg transition-all cursor-pointer ${
                   showAIS ? "bg-teal-wash text-teal font-bold border border-teal/40" : "text-text-faint hover:text-white"
                 }`}
               >
-                AIS Routes
+                AIS Vessel Routes
               </button>
               <button
                 type="button"
@@ -276,131 +315,232 @@ export default function Incidents() {
           )}
         </div>
 
-        {/* RIGHT FLOATING FORENSIC INTELLIGENCE CARD (21st.dev Liquid Glass) */}
+        {/* RIGHT FLOATING MULTI-TAB INTELLIGENCE STACK (21st.dev Liquid Glass) */}
         <div
           className={`absolute top-4 right-4 z-20 transition-all duration-300 pointer-events-auto ${
-            isDossierOpen ? "w-[380px] sm:w-[420px]" : "w-auto"
+            isDossierOpen ? "w-[390px] sm:w-[440px]" : "w-auto"
           }`}
         >
           {isDossierOpen ? (
-            <LiquidGlassPanel variant="card" glow="cyan" className="p-5 md:p-6 shadow-[0_0_50px_rgba(0,0,0,0.95)]">
-              {/* Header with Collapse toggle */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-red text-xs font-mono font-bold tracking-wider">
-                  <span className="w-2 h-2 rounded-full bg-red animate-ping" />
-                  PRIMARY ATTRIBUTION TARGET
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-mono text-teal bg-teal/10 px-2 py-0.5 rounded-full border border-teal/30 font-bold">
-                    {currentSuspect.confidencePct}% MATCH
-                  </span>
+            <LiquidGlassPanel variant="card" glow="cyan" className="p-5 md:p-6 shadow-[0_0_50px_rgba(0,0,0,0.95)] flex flex-col max-h-[640px]">
+              {/* Header with 3 Multi-Modal Tabs & Collapse Toggle */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08] mb-3">
+                {/* 3 Tabs: Suspect Dossier / Live Terminal / Sector Traffic */}
+                <div className="flex items-center gap-1 bg-black/50 p-1 rounded-xl border border-white/10 text-xs font-mono">
                   <button
                     type="button"
-                    onClick={() => setIsDossierOpen(false)}
-                    className="p-1 rounded-md text-text-faint hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-                    title="Collapse dossier"
+                    onClick={() => setActiveTab("dossier")}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                      activeTab === "dossier"
+                        ? "bg-teal text-[#020a10] font-bold shadow-[0_0_10px_rgba(0,240,255,0.3)]"
+                        : "text-text-faint hover:text-white"
+                    }`}
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ShieldAlert className="w-3 h-3" />
+                    Forensics
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("terminal")}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                      activeTab === "terminal"
+                        ? "bg-teal text-[#020a10] font-bold shadow-[0_0_10px_rgba(0,240,255,0.3)]"
+                        : "text-text-faint hover:text-white"
+                    }`}
+                  >
+                    <Terminal className="w-3 h-3" />
+                    Live Feed
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("vessels")}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                      activeTab === "vessels"
+                        ? "bg-teal text-[#020a10] font-bold shadow-[0_0_10px_rgba(0,240,255,0.3)]"
+                        : "text-text-faint hover:text-white"
+                    }`}
+                  >
+                    <Ship className="w-3 h-3" />
+                    AIS Traffic
                   </button>
                 </div>
-              </div>
-
-              {/* Suspect Title & Details */}
-              <h3 className="text-2xl font-black text-white tracking-tight mb-0.5">
-                {currentSuspect.name}
-              </h3>
-              <div className="text-[11px] font-mono text-teal mb-3">
-                MMSI {currentSuspect.mmsi || "419004812"} · {currentSuspect.flag || "PANAMA"} · {currentSuspect.vesselType || "CRUDE TANKER"}
-              </div>
-
-              {/* Suspect Selector Chips */}
-              {activeIncident.suspects.length > 1 && (
-                <div className="flex items-center gap-1.5 mb-3.5 p-1 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  {activeIncident.suspects.map((s, idx) => (
-                    <button
-                      key={s.name}
-                      type="button"
-                      onClick={() => setSelectedSuspectIndex(idx)}
-                      className={`flex-1 py-1 text-[10.5px] font-mono rounded-lg transition-all cursor-pointer ${
-                        selectedSuspectIndex === idx
-                          ? "bg-teal-wash text-teal font-bold border border-teal/40 shadow-[0_0_12px_rgba(0,240,255,0.2)]"
-                          : "text-text-faint hover:text-white"
-                      }`}
-                    >
-                      #{s.rank} {s.name.split(" ")[1] || s.name} ({s.confidencePct}%)
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Narrative Summary */}
-              <p className="text-[11.5px] text-text-muted mb-4 leading-relaxed line-clamp-3">
-                {currentSuspect.dossierSummary ||
-                  "Vessel transited through the spill origin coordinates during the estimated discharge window. Hydrodynamic backtrack intersects vessel trajectory with high spatial confidence."}
-              </p>
-
-              {/* Key Telemetry Rows */}
-              <div className="space-y-2 bg-[#03060a]/90 p-3.5 rounded-xl border border-white/10 mb-4 text-[11px] font-mono">
-                <div className="flex justify-between items-center">
-                  <span className="text-text-faint flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-amber" />
-                    AIS Dark Window
-                  </span>
-                  <span className="font-bold text-amber">{currentSuspect.aisGapDuration || "4h 12m"}</span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-text-faint flex items-center gap-1.5">
-                    <Anchor className="w-3.5 h-3.5 text-teal" />
-                    Fuel Oil Match
-                  </span>
-                  <span className="font-bold text-white">{currentSuspect.fuelTypeMatch || "HFO-380 cSt"}</span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-text-faint flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-red" />
-                    Speed Profile
-                  </span>
-                  <span className="font-bold text-red">{currentSuspect.speedAnomaly || "Decel at origin"}</span>
-                </div>
-              </div>
-
-              {/* Bayesian Progress */}
-              <div className="space-y-1 mb-4">
-                <div className="flex justify-between text-[10.5px] font-mono">
-                  <span className="text-text-faint">Bayesian Attribution Weight</span>
-                  <span className="text-teal font-bold">{currentSuspect.confidencePct}%</span>
-                </div>
-                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-teal-dim via-teal to-[#7df9ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(0,240,255,0.4)]"
-                    style={{ width: `${currentSuspect.confidencePct}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-col gap-2">
-                <LiquidButton
-                  variant="cyan"
-                  size="default"
-                  onClick={() => handleDownloadJson(currentSuspect)}
-                  className="w-full border border-teal/40 bg-teal/15 font-mono text-[11px] tracking-wider uppercase shadow-[0_0_16px_rgba(0,240,255,0.25)] hover:scale-[1.01] active:scale-[0.99] transition-transform"
-                >
-                  <Download className="w-3.5 h-3.5 text-teal" />
-                  Download Signed Dossier (.JSON)
-                </LiquidButton>
 
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(true)}
-                  className="w-full py-1.5 rounded-lg text-text-faint hover:text-white text-[10.5px] font-mono flex items-center justify-center gap-1 transition-colors"
+                  onClick={() => setIsDossierOpen(false)}
+                  className="p-1.5 rounded-lg text-text-faint hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                  title="Collapse panel"
                 >
-                  <FileCheck2 className="w-3 h-3" />
-                  View Full Evidence Package →
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
+
+              {/* TAB 1: FORENSIC SUSPECT DOSSIER */}
+              {activeTab === "dossier" && (
+                <div className="flex flex-col flex-1 overflow-y-auto pr-1">
+                  {/* Confidence Badge */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-mono font-bold text-red tracking-wider uppercase flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-red animate-ping" />
+                      PRIMARY SUSPECT
+                    </span>
+                    <span className="text-[11px] font-mono text-teal bg-teal/10 px-2.5 py-0.5 rounded-full border border-teal/30 font-bold">
+                      {currentSuspect.confidencePct}% ATTRIBUTION
+                    </span>
+                  </div>
+
+                  {/* Suspect Title & Telemetry */}
+                  <h3 className="text-2xl font-black text-white tracking-tight mb-0.5">
+                    {currentSuspect.name}
+                  </h3>
+                  <div className="text-[11px] font-mono text-teal mb-3">
+                    MMSI {currentSuspect.mmsi || "419004812"} · {currentSuspect.flag || "PANAMA"} · {currentSuspect.vesselType || "CRUDE TANKER"}
+                  </div>
+
+                  {/* Suspect Selector Chips */}
+                  {activeIncident.suspects.length > 1 && (
+                    <div className="flex items-center gap-1.5 mb-3 p-1 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      {activeIncident.suspects.map((s, idx) => (
+                        <button
+                          key={s.name}
+                          type="button"
+                          onClick={() => setSelectedSuspectIndex(idx)}
+                          className={`flex-1 py-1 text-[10.5px] font-mono rounded-lg transition-all cursor-pointer ${
+                            selectedSuspectIndex === idx
+                              ? "bg-teal-wash text-teal font-bold border border-teal/40 shadow-[0_0_12px_rgba(0,240,255,0.2)]"
+                              : "text-text-faint hover:text-white"
+                          }`}
+                        >
+                          #{s.rank} {s.name.split(" ")[1] || s.name} ({s.confidencePct}%)
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Narrative Summary */}
+                  <p className="text-[11.5px] text-text-muted mb-3.5 leading-relaxed">
+                    {currentSuspect.dossierSummary ||
+                      "Vessel transited through the spill origin coordinates during the estimated discharge window. Hydrodynamic backtrack intersects vessel trajectory with high spatial confidence."}
+                  </p>
+
+                  {/* Key Telemetry Rows */}
+                  <div className="space-y-2 bg-[#03060a]/90 p-3.5 rounded-xl border border-white/10 mb-4 text-[11px] font-mono">
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-faint flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber" />
+                        AIS Dark Window
+                      </span>
+                      <span className="font-bold text-amber">{currentSuspect.aisGapDuration || "4h 12m"}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-faint flex items-center gap-1.5">
+                        <Anchor className="w-3.5 h-3.5 text-teal" />
+                        Fuel Oil Match
+                      </span>
+                      <span className="font-bold text-white">{currentSuspect.fuelTypeMatch || "HFO-380 cSt"}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-faint flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-red" />
+                        Speed Anomaly
+                      </span>
+                      <span className="font-bold text-red">{currentSuspect.speedAnomaly || "Decel at origin"}</span>
+                    </div>
+                  </div>
+
+                  {/* Bayesian Progress */}
+                  <div className="space-y-1 mb-4">
+                    <div className="flex justify-between text-[10.5px] font-mono">
+                      <span className="text-text-faint">Bayesian Likelihood Overlap</span>
+                      <span className="text-teal font-bold">{currentSuspect.confidencePct}%</span>
+                    </div>
+                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-teal-dim via-teal to-[#7df9ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(0,240,255,0.4)]"
+                        style={{ width: `${currentSuspect.confidencePct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-col gap-2 mt-auto">
+                    <LiquidButton
+                      variant="cyan"
+                      size="default"
+                      onClick={() => handleDownloadJson(currentSuspect)}
+                      className="w-full border border-teal/40 bg-teal/15 font-mono text-[11px] tracking-wider uppercase shadow-[0_0_16px_rgba(0,240,255,0.25)] hover:scale-[1.01] active:scale-[0.99] transition-transform"
+                    >
+                      <Download className="w-3.5 h-3.5 text-teal" />
+                      Download Signed Dossier (.JSON)
+                    </LiquidButton>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(true)}
+                      className="w-full py-1.5 rounded-lg text-text-faint hover:text-white text-[10.5px] font-mono flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <FileCheck2 className="w-3 h-3" />
+                      View Full Court Evidence Package →
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: LIVE TELEMETRY LOG FEED */}
+              {activeTab === "terminal" && (
+                <div className="flex-1 flex flex-col min-h-[360px] overflow-hidden rounded-xl border border-white/10">
+                  <TelemetryTerminal />
+                </div>
+              )}
+
+              {/* TAB 3: SECTOR AIS TRAFFIC RADAR */}
+              {activeTab === "vessels" && (
+                <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1">
+                  <div className="text-[10px] font-mono text-text-faint uppercase px-1 mb-1">
+                    VESSELS IN 25 NM RADIUS ({vessels.length} TRACKED)
+                  </div>
+                  {vessels.map((v) => (
+                    <div
+                      key={v.id}
+                      onClick={() => {
+                        const matched = activeIncident.suspects.find((s) => s.name.toLowerCase().includes(v.name.toLowerCase()));
+                        if (matched) {
+                          const idx = activeIncident.suspects.indexOf(matched);
+                          setSelectedSuspectIndex(idx);
+                          setActiveTab("dossier");
+                        }
+                      }}
+                      className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-teal/30 cursor-pointer transition-all flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Ship className="w-3.5 h-3.5 text-teal" />
+                          <span className="text-xs font-bold text-white">{v.name}</span>
+                          <span className="text-[10px] font-mono text-text-faint">{v.flag}</span>
+                        </div>
+                        <div className="text-[10.5px] font-mono text-text-muted mt-0.5">
+                          MMSI {v.mmsi} · {v.type} · {v.speedKt} kt
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1">
+                        <span
+                          className={`text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                            v.aisStatus === "dark"
+                              ? "bg-red-wash text-red border border-red/30"
+                              : "bg-teal-wash text-teal border border-teal/30"
+                          }`}
+                        >
+                          {v.aisStatus === "dark" ? "AIS-DARK" : "LIVE"}
+                        </span>
+                        <span className="text-[10px] font-mono text-text-faint">Risk: {v.riskScore}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </LiquidGlassPanel>
           ) : (
             <button
@@ -409,7 +549,7 @@ export default function Incidents() {
               className="px-3.5 py-2.5 rounded-xl bg-black/80 backdrop-blur-xl border border-teal/40 text-teal font-mono text-xs font-bold flex items-center gap-2 shadow-[0_0_24px_rgba(0,240,255,0.25)] hover:bg-teal-wash transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>FORENSIC DOSSIER ({currentSuspect.confidencePct}%)</span>
+              <span>COMMAND INTELLIGENCE ({currentSuspect.confidencePct}%)</span>
             </button>
           )}
         </div>
@@ -426,44 +566,52 @@ export default function Incidents() {
       {/* 3. BOTTOM TELEMETRY ROW: 4 CLEAN GLASS METRIC CARDS */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Satellite Ingest */}
         <LiquidGlassPanel variant="card" glow="subtle" className="p-4">
           <div className="text-[10px] font-mono text-text-faint uppercase mb-1 flex items-center gap-1.5">
             <Radar className="w-3.5 h-3.5 text-teal" />
-            SATELLITE SENSOR
+            SATELLITE SURVEILLANCE
           </div>
           <div className="text-base font-extrabold text-white">Copernicus Sentinel-1</div>
           <div className="text-[11px] font-mono text-teal mt-0.5">C-Band SAR · 20m Dual-Pol (VV/VH)</div>
+          <div className="mt-2 text-[10px] font-mono text-text-faint">Orbit: Sun-Synchronous (693 km)</div>
         </LiquidGlassPanel>
 
+        {/* Card 2: Currents & Wind */}
         <LiquidGlassPanel variant="card" glow="subtle" className="p-4">
           <div className="text-[10px] font-mono text-text-faint uppercase mb-1 flex items-center gap-1.5">
             <Waves className="w-3.5 h-3.5 text-blue" />
-            HYDRODYNAMICS
+            CURRENTS & WIND
           </div>
           <div className="text-base font-extrabold text-white">{activeIncident.currentVector}</div>
-          <div className="text-[11px] font-mono text-text-muted mt-0.5">INCOIS-HYCOM Lagrangian Grid</div>
+          <div className="text-[11px] font-mono text-text-muted mt-0.5">Wind: {activeIncident.windVector}</div>
+          <div className="mt-2 text-[10px] font-mono text-text-faint">Wave Height: 2.8m · Temp: 11.4°C</div>
         </LiquidGlassPanel>
 
+        {/* Card 3: ADIOS2 Weathering */}
         <LiquidGlassPanel variant="card" glow="subtle" className="p-4">
           <div className="text-[10px] font-mono text-text-faint uppercase mb-1 flex items-center gap-1.5">
             <Compass className="w-3.5 h-3.5 text-amber" />
-            WEATHERING PHYSICS
+            ADIOS2 WEATHERING
           </div>
-          <div className="text-base font-extrabold text-white">ADIOS2 Model</div>
-          <div className="text-[11px] font-mono text-amber mt-0.5">10 m²/s Diffusion · Emulsification</div>
+          <div className="text-base font-extrabold text-white">Heavy Crude 380 cSt</div>
+          <div className="text-[11px] font-mono text-amber mt-0.5">Diffusion Coeff: 10 m²/s</div>
+          <div className="mt-2 text-[10px] font-mono text-text-faint">Evaporated: 31.4% · Emulsified: 42.8%</div>
         </LiquidGlassPanel>
 
+        {/* Card 4: Attribution Lock */}
         <LiquidGlassPanel variant="card" glow="subtle" className="p-4">
           <div className="text-[10px] font-mono text-text-faint uppercase mb-1 flex items-center gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5 text-teal" />
-            ATTRIBUTION STATUS
+            ATTRIBUTION CONFIDENCE
           </div>
-          <div className="text-base font-extrabold text-teal">High Confidence ({currentSuspect.confidencePct}%)</div>
-          <div className="text-[11px] font-mono text-text-muted mt-0.5">Kalman Particle Backtrack Lock</div>
+          <div className="text-base font-extrabold text-teal">High Lock ({currentSuspect.confidencePct}%)</div>
+          <div className="text-[11px] font-mono text-text-muted mt-0.5">Kalman Origin: ±180m Overlap</div>
+          <div className="mt-2 text-[10px] font-mono text-text-faint">Tamper-Evident SHA-256 Verified</div>
         </LiquidGlassPanel>
       </div>
 
-      {/* MODAL: FULL COURT EVIDENCE DOSSIER */}
+      {/* FULL COURT EVIDENCE DOSSIER MODAL */}
       <ForensicDossierModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

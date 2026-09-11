@@ -253,6 +253,7 @@ export function InteractiveEarth({
     const satelliteGroup = new THREE.Group();
     globeGroup.add(satelliteGroup);
     sarSatelliteRef.current = satelliteGroup;
+    satelliteGroup.visible = showSARLayer;
 
     const satBodyGeo = new THREE.BoxGeometry(0.08, 0.05, 0.12);
     const satBodyMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.8, roughness: 0.2 });
