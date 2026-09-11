@@ -1,3 +1,4 @@
+import { GlowCard } from "./GlowCard";
 import {
   AlertTriangle,
   Ship,
@@ -38,17 +39,27 @@ const accentColor: Record<NonNullable<StatCardData["accent"]>, string> = {
 
 export function StatCard({ label, value, unit, delta, accent = "default", icon }: StatCardData) {
   const Icon = iconMap[icon];
+  const glowType = accent === "red" ? "red" : accent === "teal" ? "cyan" : "subtle";
+
   return (
-    <div className="bg-panel border border-border-soft rounded-xl px-4 py-3.5">
+    <GlowCard glowColor={glowType} className="px-4 py-3.5 flex flex-col justify-between">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10.5px] tracking-wide text-text-faint font-semibold">{label}</span>
-        <Icon className="w-[15px] h-[15px] text-text-faint" />
+        <span className="text-[10px] tracking-wider text-text-faint font-mono font-semibold uppercase">
+          {label}
+        </span>
+        <div className="w-7 h-7 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+          <Icon className="w-3.5 h-3.5 text-teal/80" />
+        </div>
       </div>
-      <div className={`text-[26px] font-extrabold flex items-baseline gap-1.5 ${accentColor[accent]}`}>
+      <div className={`text-[26px] font-extrabold flex items-baseline gap-1.5 tracking-tight ${accentColor[accent]}`}>
         {value}
-        {unit && <small className="text-[12.5px] font-medium text-text-muted">{unit}</small>}
-        {delta && <span className="text-xs font-semibold text-teal">{delta}</span>}
+        {unit && <small className="text-[12px] font-mono font-medium text-text-muted">{unit}</small>}
+        {delta && (
+          <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-teal-wash text-teal border border-teal/20 ml-auto">
+            {delta}
+          </span>
+        )}
       </div>
-    </div>
+    </GlowCard>
   );
 }

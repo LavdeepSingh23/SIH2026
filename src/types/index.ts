@@ -8,6 +8,15 @@ export interface Incident {
   tonnage: string;
   status: string;
   severity: Severity;
+  lat: number;
+  lon: number;
+  region: string;
+  timeDetected: string;
+  estimatedVolume: string;
+  slickAreaKm2: number;
+  windVector: string;
+  currentVector: string;
+  suspects: SuspectVessel[];
 }
 
 export interface Vessel {
@@ -26,6 +35,22 @@ export interface SuspectVessel {
   name: string;
   confidencePct: number;
   note: string;
+  id?: string;
+  mmsi?: string;
+  imo?: string;
+  flag?: string;
+  vesselType?: string;
+  aisGapDuration?: string;
+  fuelTypeMatch?: string;
+  speedAnomaly?: string;
+  evidenceHash?: string;
+  bayesianScores?: {
+    proximity: number;
+    fuelMatch: number;
+    driftBacktrack: number;
+    speedAnomaly: number;
+  };
+  dossierSummary?: string;
 }
 
 export interface PipelineStage {
